@@ -45,7 +45,7 @@ public class RecordExample
     public string Name { get; set; } = null!;
 
     [DelimiterField(2)]
-     public DateTime? DateOfBirth { get; set; }
+    public DateTime? DateOfBirth { get; set; }
 
     [DelimiterField(3)]
     public int? Children { get; set; }
