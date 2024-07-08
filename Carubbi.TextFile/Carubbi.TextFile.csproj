@@ -5,7 +5,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<Title>Carubbi Text File</Title>
-		<Description>A text parser library designed to facilitate reading and writing text and CSV files with support for positional layouts, delimited-based layouts, and hierarchical layouts</Description>
+		<Description>A text parser library designed to facilitate reading and writing text and CSV files</Description>
 		<RepositoryUrl>https://github.com/rcarubbi/carubbi.textfile</RepositoryUrl>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageTags>CSV;Text file;parser</PackageTags>
@@ -13,6 +13,14 @@
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<Authors>Raphael Carubbi Neto</Authors>
 		<Version>1.0.0</Version>
+		<PackageProjectUrl>https://github.com/rcarubbi/Carubbi.TextFile</PackageProjectUrl>
 	</PropertyGroup>
+
+	<ItemGroup>
+	  <None Include="..\README.md">
+	    <Pack>True</Pack>
+	    <PackagePath>\</PackagePath>
+	  </None>
+	</ItemGroup>
 
 </Project>
