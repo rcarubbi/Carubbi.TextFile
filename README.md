@@ -100,5 +100,6 @@ public class FluentRecordExampleConfiguration : TextFileRecordTypeConfiguration<
     }
 }
 ```
+**For more usage examples check the test project**
 
 Enjoy using Carubbi.TextFile for your text parsing needs!
