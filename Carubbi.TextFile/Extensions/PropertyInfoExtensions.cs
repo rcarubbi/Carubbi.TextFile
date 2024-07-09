@@ -1,4 +1,5 @@
 ﻿using Carubbi.TextFile.Attributes;
+using Carubbi.TextFile.Configuration;
 using System.Reflection;
 using static Carubbi.TextFile.FluentApi.TextFileModelBuilder;
 
@@ -41,6 +42,40 @@ internal static class PropertyInfoExtensions
         }
     }
 
+    internal static PaddingDirection? GetPaddingDirection(this PropertyInfo propertyInfo)
+    {
+        if (propertyInfo.GetCustomAttribute(typeof(PositionalFieldAttribute)) is PositionalFieldAttribute positionalFieldAttribute)
+        {
+            return positionalFieldAttribute.PaddingDirection;
+        }
+        else
+        {
+            var hasConfiguration = Configs.TryGetValue(propertyInfo.DeclaringType!, out var configuration);
+
+            return hasConfiguration
+                ? configuration!.Fields[propertyInfo.Name].PaddingDirection  
+                : null;
+        }
+    }
+
+    internal static char? GetPaddingChar(this PropertyInfo propertyInfo)
+    {
+        if (propertyInfo.GetCustomAttribute(typeof(PositionalFieldAttribute)) is PositionalFieldAttribute positionalFieldAttribute)
+        {
+            return positionalFieldAttribute.PaddingChar;
+        }
+        else
+        {
+            var hasConfiguration = Configs.TryGetValue(propertyInfo.DeclaringType!, out var configuration);
+
+            return hasConfiguration
+                ? configuration!.Fields[propertyInfo.Name].PaddingChar
+                : null;
+        }
+    }
+
+
+
     internal static int? GetStartIndex(this PropertyInfo propertyInfo)
     {
         if (propertyInfo.GetCustomAttribute(typeof(PositionalFieldAttribute)) is PositionalFieldAttribute positionalFieldAttribute)
@@ -78,5 +113,23 @@ internal static class PropertyInfoExtensions
         return propertyInfo.IsNullable()
             ? propertyInfo.PropertyType.GenericTypeArguments[0]
             : propertyInfo.PropertyType;
+    }
+
+    internal static MethodInfo? GetCustomParseMethod(this PropertyInfo propertyInfo)
+    {
+        if (propertyInfo.GetCustomAttribute(typeof(WriteCustomParseAttribute)) is WriteCustomParseAttribute writeCustomParseAttribute)
+        {
+            return propertyInfo.DeclaringType!.GetMethod(writeCustomParseAttribute.MethodName, BindingFlags.NonPublic | BindingFlags.Instance) 
+                ?? propertyInfo.DeclaringType!.GetMethod(writeCustomParseAttribute.MethodName, BindingFlags.Public | BindingFlags.Instance)
+                ?? throw new InvalidOperationException($"Custom parse method {writeCustomParseAttribute.MethodName} not found in the model");
+        }
+        else
+        {
+            var hasConfiguration = Configs.TryGetValue(propertyInfo.DeclaringType!, out var configuration);
+
+            return hasConfiguration
+                ? configuration!.Fields[propertyInfo.Name].WriteCustomParse.Method
+                : null;
+        }
     }
 }

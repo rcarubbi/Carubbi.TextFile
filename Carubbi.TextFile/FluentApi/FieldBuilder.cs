@@ -1,4 +1,6 @@
-﻿namespace Carubbi.TextFile.FluentApi;
+﻿using Carubbi.TextFile.Configuration;
+
+namespace Carubbi.TextFile.FluentApi;
 
 public class FieldBuilder
 {
@@ -24,6 +26,26 @@ public class FieldBuilder
     public void AsParentReference<T>()
     {
         _config.ParentReferenceType = typeof(T);
+    }
+
+    public FieldBuilder PadRightWith(char paddingChar)
+    {
+        _config.PaddingChar = paddingChar;
+        _config.PaddingDirection = PaddingDirection.Right;
+        return this;
+    }
+
+    public FieldBuilder PadLeftWith(char paddingChar)
+    {
+        _config.PaddingChar = paddingChar;
+        _config.PaddingDirection = PaddingDirection.Left;
+        return this;
+    }
+
+    public FieldBuilder WithWriteCustomParse<T>(Func<T, string> parse) where T : class
+    {
+        _config.WriteCustomParse = (Func<object, string>)parse;
+        return this;
     }
 
     public void AsIdentifier()

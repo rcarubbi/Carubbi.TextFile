@@ -3,12 +3,13 @@ using Carubbi.TextFile.Tests.Readers.Configuration;
 using Carubbi.TextFile.Tests.Readers.Models;
 using Carubbi.TextFile.Configuration;
 using Carubbi.TextFile.FluentApi;
+using FluentAssertions;
 
 namespace Carubbi.TextFile.Tests.Readers;
 
-public class FluentApiFlatTextReadTests
+public class FluentApiFlatTextReaderTests
 {
-    public FluentApiFlatTextReadTests()
+    public FluentApiFlatTextReaderTests()
     {
         TextFileModelBuilder.ApplyConfigurationsFromAssembly(typeof(FluentRecordExampleConfiguration).Assembly);
     }
@@ -29,6 +30,18 @@ public class FluentApiFlatTextReadTests
         // sut
         var result = FlatTextFileReader.ReadFile<FluentRecordExample>("test3.txt", new ReadingOptions { SkipHeader = true, Mode = ContentMode.Delimited });
 
+        result.Should().HaveCount(3);
+        result[0].Name.Should().Be("Raphael Carubbi Neto");
+        result[0].DateOfBirth.Should().Be(new DateTime(1981, 9, 29));
+        result[0].Children.Should().Be(2);
+
+        result[1].Name.Should().Be("John Doe");
+        result[1].DateOfBirth.Should().BeNull();
+        result[1].Children.Should().Be(1);
+
+        result[2].Name.Should().Be("Bob B.");
+        result[2].DateOfBirth.Should().Be(new DateTime(2002, 5, 30));
+        result[2].Children.Should().BeNull();
     }
 
     [Fact]
@@ -47,5 +60,17 @@ public class FluentApiFlatTextReadTests
         // sut
         var result = FlatTextFileReader.ReadFile<FluentRecordExample>("test4.txt", new ReadingOptions { SkipHeader = true, Mode = ContentMode.Positional });
 
+        result.Should().HaveCount(3);
+        result[0].Name.Should().Be("Raphael Carubbi Neto");
+        result[0].DateOfBirth.Should().Be(new DateTime(1981, 9, 29));
+        result[0].Children.Should().Be(2);
+
+        result[1].Name.Should().Be("John Doe");
+        result[1].DateOfBirth.Should().BeNull();
+        result[1].Children.Should().Be(1);
+
+        result[2].Name.Should().Be("Bob B.");
+        result[2].DateOfBirth.Should().Be(new DateTime(2002, 5, 30));
+        result[2].Children.Should().BeNull();
     }
 }

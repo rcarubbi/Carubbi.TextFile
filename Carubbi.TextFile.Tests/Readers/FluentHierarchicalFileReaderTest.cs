@@ -3,6 +3,7 @@ using Carubbi.TextFile.Tests.Readers.Configuration;
 using Carubbi.TextFile.Configuration;
 using Carubbi.TextFile.FluentApi;
 using Carubbi.TextFile.Tests.Readers.Models;
+using FluentAssertions;
 
 namespace Carubbi.TextFile.Tests.Readers;
 
@@ -28,5 +29,32 @@ public class FluentHierarchicalFileReaderTest
         File.WriteAllText("test5.txt", fileContent);
         TextFileModelBuilder.ApplyConfigurationsFromAssembly(typeof(FluentPersonConfiguration).Assembly);
         var result = HierarchicalTextFileReader.ReadHierarchicalFile<Person, Child, Phone>("test5.txt", new ReadingOptions { Mode = ContentMode.Delimited });
+
+        result.Should().HaveCount(2);
+        result[0].Name.Should().Be("Raphael Carubbi Neto");
+        result[0].Dob.Should().Be(new DateTime(1981, 9, 29));
+        result[0].ChildrenCount.Should().Be(2);
+        result[0].Children.Should().HaveCount(2);
+        result[0].Children[0].Name.Should().Be("John Doe");
+        result[0].Children[0].Dob.Should().Be(new DateTime(2010, 2, 4));
+        result[0].Children[1].Name.Should().Be("Bob B.");
+        result[0].Children[1].Dob.Should().Be(new DateTime(2002, 5, 30));
+        result[0].Phones.Should().HaveCount(2);
+        result[0].Phones[0].Number.Should().Be("1122223344");
+        result[0].Phones[1].Number.Should().Be("4477776655");
+
+        result[1].Name.Should().Be("Armando Miani");
+        result[1].Dob.Should().Be(new DateTime(1985, 10, 10));
+        result[1].ChildrenCount.Should().Be(2);
+        result[1].Children.Should().HaveCount(2);
+        result[1].Children[0].Name.Should().Be("Joao Da Silva");
+        result[1].Children[0].Dob.Should().Be(new DateTime(2010, 5, 11));
+        result[1].Children[1].Name.Should().Be("Jose Maria");
+        result[1].Children[1].Dob.Should().Be(new DateTime(2008, 11, 10));
+        result[1].Phones.Should().HaveCount(2);
+        result[1].Phones[0].Number.Should().Be("123443254");
+        result[1].Phones[1].Number.Should().Be("987654322");
+
+
     }
 }

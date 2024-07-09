@@ -15,6 +15,5 @@ internal interface ITextFileRecordTypeConfiguration
     List<ChildConfig> ChildConfigs { get; }
 
     List<ParentConfig> ParentConfigs { get; }
-
 }
 

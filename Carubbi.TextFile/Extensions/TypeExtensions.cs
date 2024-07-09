@@ -167,4 +167,26 @@ internal static class TypeExtensions
                 : Array.Empty<PropertyInfo>();   
         }
     }
+
+    internal static PropertyInfo[] GetPositionalProperties(this Type type)
+    {
+        var propertiesFromAttributes = type.GetProperties().Where(p => p.GetCustomAttributes(typeof(PositionalFieldAttribute), false).Any())
+            .OrderBy(x => x.GetCustomAttribute<PositionalFieldAttribute>()!.Start);
+
+        if (propertiesFromAttributes.Any())
+        {
+            return propertiesFromAttributes.ToArray();
+        }
+        else
+        {
+            var hasConfiguration = Configs.TryGetValue(type, out var configuration);
+            return hasConfiguration
+                ? configuration!.Fields
+                    .Where(x => x.Value.StartIndex.HasValue && x.Value.Length.HasValue)
+                    .OrderBy(x => x.Value.StartIndex)
+                    .Select(x => x.Value.Property!)
+                    .ToArray()
+                : Array.Empty<PropertyInfo>();
+        }
+    }
 }
