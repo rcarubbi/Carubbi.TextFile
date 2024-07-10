@@ -42,9 +42,20 @@ public class FieldBuilder
         return this;
     }
 
-    public FieldBuilder WithWriteCustomParse<T>(Func<T, string> parse) where T : class
+    public FieldBuilder WithWriteCustomParse<T>(Func<T, string> parse)
     {
-        _config.WriteCustomParse = (Func<object, string>)parse;
+        _config.WriteCustomParse = obj =>
+        {
+            if (obj is T typedObj)
+            {
+                return parse(typedObj);
+            }
+            else
+            {
+                throw new ArgumentException($"Expected argument of type {typeof(T).Name}, but received {obj?.GetType().Name ?? "null"}.");
+            }
+        };
+
         return this;
     }
 

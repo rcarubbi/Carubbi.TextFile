@@ -115,21 +115,25 @@ internal static class PropertyInfoExtensions
             : propertyInfo.PropertyType;
     }
 
-    internal static MethodInfo? GetCustomParseMethod(this PropertyInfo propertyInfo)
+    internal static (MethodInfo? ModelCustomParse, Func<object, string>? FluentCustomParse) GetCustomParseMethod(this PropertyInfo propertyInfo)
     {
         if (propertyInfo.GetCustomAttribute(typeof(WriteCustomParseAttribute)) is WriteCustomParseAttribute writeCustomParseAttribute)
         {
-            return propertyInfo.DeclaringType!.GetMethod(writeCustomParseAttribute.MethodName, BindingFlags.NonPublic | BindingFlags.Instance) 
+            var modelCustomParse = propertyInfo.DeclaringType!.GetMethod(writeCustomParseAttribute.MethodName, BindingFlags.NonPublic | BindingFlags.Instance) 
                 ?? propertyInfo.DeclaringType!.GetMethod(writeCustomParseAttribute.MethodName, BindingFlags.Public | BindingFlags.Instance)
                 ?? throw new InvalidOperationException($"Custom parse method {writeCustomParseAttribute.MethodName} not found in the model");
+
+            return (modelCustomParse, null);
         }
         else
         {
             var hasConfiguration = Configs.TryGetValue(propertyInfo.DeclaringType!, out var configuration);
 
-            return hasConfiguration
-                ? configuration!.Fields[propertyInfo.Name].WriteCustomParse.Method
+            var fluentCustomParse = hasConfiguration
+                ? configuration!.Fields[propertyInfo.Name].WriteCustomParse
                 : null;
+
+            return (null, fluentCustomParse);
         }
     }
 }
