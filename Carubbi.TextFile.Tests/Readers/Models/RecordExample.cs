@@ -6,16 +6,20 @@ namespace Carubbi.TextFile.Tests.Readers.Models;
 public class RecordExample
 {
     [DelimiterField(1)]
-    [PositionalField(0, 20)]
+    [PositionalField(0, 3)]
+    public int Number {  get; set; }
+
+    [DelimiterField(2)]
+    [PositionalField(3, 20)]
     public string Name { get; set; } = null!;
 
 
-    [DelimiterField(2)]
-    [PositionalField(20, 10)]
+    [DelimiterField(3)]
+    [PositionalField(23, 10)]
     public DateTime? DateOfBirth { get; set; }
 
 
-    [DelimiterField(3)]
-    [PositionalField(30, 2)]
+    [DelimiterField(4)]
+    [PositionalField(33, 2)]
     public int? Children { get; set; }
 }

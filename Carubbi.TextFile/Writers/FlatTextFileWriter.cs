@@ -8,7 +8,7 @@ public class FlatTextFileWriter
 {
     public static async Task WriteFileAsync<T>(List<T> models, string filePath, WritingOptions writingOptions, CancellationToken cancellationToken)
     {
-        await using var writer = new StreamWriter(filePath, false, Encoding.Default, CalculateBufferSize());
+        await using var writer = new StreamWriter(filePath, false, Encoding.Default, bufferSize: CalculateBufferSize());
        
         if (!string.IsNullOrWhiteSpace(writingOptions.Header))
         {
@@ -85,13 +85,10 @@ public class FlatTextFileWriter
     private static int CalculateBufferSize()
     {
         const int maxMemory = 32 * 1024 * 1024;
-        const int minMemory = 1 * 1024 * 1024;
-        var memory = minMemory;
-
         MemoryInfo.GetMemoryStatus(out _, out var availableMemoryMB);
 
-        var memoryReserved = ((int)availableMemoryMB / 2) * 1024 * 1024;
-        memory = memoryReserved > maxMemory ? maxMemory : memoryReserved;
+        var memoryReserved = availableMemoryMB / 2 * 1024 * 1024;
+        int memory = memoryReserved > maxMemory ? maxMemory : (int)memoryReserved;
         
         return memory;
     }

@@ -1,7 +1,6 @@
 ﻿using Carubbi.TextFile.Configuration;
 using Carubbi.TextFile.Extensions;
 using System.Collections;
-using static Carubbi.TextFile.FluentApi.TextFileModelBuilder;
 
 namespace Carubbi.TextFile.Readers;
 public class HierarchicalTextFileReader : TextFileReaderBase

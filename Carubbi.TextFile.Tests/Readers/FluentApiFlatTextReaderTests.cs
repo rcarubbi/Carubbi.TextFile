@@ -15,7 +15,7 @@ public class FluentApiFlatTextReaderTests
     }
 
     [Fact]
-    public void GivenValidDelimitedFileWithNullValuesInOptionalFields_WhenRead_ShouldParse()
+    public async Task GivenValidDelimitedFileWithNullValuesInOptionalFields_WhenRead_ShouldParse()
     {
         // arrange
         var fileContent = """
@@ -28,7 +28,7 @@ public class FluentApiFlatTextReaderTests
         File.WriteAllText("test3.txt", fileContent);
 
         // sut
-        var result = FlatTextFileReader.ReadFile<FluentRecordExample>("test3.txt", new ReadingOptions { SkipHeader = true, Mode = ContentMode.Delimited });
+        var result = await FlatTextFileReader.ReadFile<FluentRecordExample>("test3.txt", new ReadingOptions { SkipHeader = true, Mode = ContentMode.Delimited });
 
         result.Should().HaveCount(3);
         result[0].Name.Should().Be("Raphael Carubbi Neto");
@@ -45,7 +45,7 @@ public class FluentApiFlatTextReaderTests
     }
 
     [Fact]
-    public void GivenValidPositionalFileWithEmptyValuesInOptionalFields_WhenRead_ShouldParse()
+    public async Task GivenValidPositionalFileWithEmptyValuesInOptionalFields_WhenRead_ShouldParse()
     {
         // arrange
         var fileContent = """
@@ -58,7 +58,7 @@ public class FluentApiFlatTextReaderTests
         File.WriteAllText("test4.txt", fileContent);
 
         // sut
-        var result = FlatTextFileReader.ReadFile<FluentRecordExample>("test4.txt", new ReadingOptions { SkipHeader = true, Mode = ContentMode.Positional });
+        var result = await FlatTextFileReader.ReadFile<FluentRecordExample>("test4.txt", new ReadingOptions { SkipHeader = true, Mode = ContentMode.Positional });
 
         result.Should().HaveCount(3);
         result[0].Name.Should().Be("Raphael Carubbi Neto");
