@@ -42,12 +42,15 @@ To read the CSV file using Carubbi.TextFile, follow these steps:
 public class RecordExample
 {
     [DelimiterField(1)]
+    [PositionalField(0, 20)]
     public string Name { get; set; } = null!;
 
     [DelimiterField(2)]
+    [PositionalField(20, 10)]
     public DateTime? DateOfBirth { get; set; }
 
     [DelimiterField(3)]
+    [PositionalField(30, 2)]
     public int? Children { get; set; }
 }
 ```
@@ -63,7 +66,9 @@ var fileContent = """
 
 File.WriteAllText("test1.txt", fileContent);
 
-var result = FlatTextFileReader.ReadFile<RecordExample>("test1.txt", new ReadingOptions { SkipHeader = true, Mode = ContentMode.Delimited });
+var reader = new FlatTextFileReader<RecordExample>(new ReadingOptions { SkipHeader = true, Mode = ContentMode.Delimited });
+
+var result = reader.ReadFile("test1.txt");
 ```
 
 ## Configuration Options
@@ -94,12 +99,11 @@ public class FluentRecordExampleConfiguration : TextFileRecordTypeConfiguration<
     public FluentRecordExampleConfiguration()
     {
         HasDelimiter(',');
-        Property(x => x.Name).InDelimitedOrder(1);
-        Property(x => x.DateOfBirth).InDelimitedOrder(2);
-        Property(x => x.Children).InDelimitedOrder(3);
+        Property(x => x.Name).InDelimitedOrder(1).InPositionalIndex(0, 20);
+        Property(x => x.DateOfBirth).InDelimitedOrder(2).InPositionalIndex(20, 10);
+        Property(x => x.Children).InDelimitedOrder(3).InPositionalIndex(30, 2);
     }
 }
 ```
-**For more usage examples check the test project**
 
 Enjoy using Carubbi.TextFile for your text parsing needs!
