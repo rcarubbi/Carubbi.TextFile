@@ -1,5 +1,6 @@
 ﻿using Carubbi.TextFile.Configuration;
 using Carubbi.TextFile.FluentApi;
+using Carubbi.TextFile.Tests.Writers.Models;
 using Carubbi.TextFile.Writers;
 using FluentAssertions;
 
@@ -10,6 +11,7 @@ public class FluentFlatWriterTests
     [Fact]
     public async Task GivenModelsWithDelimitedFluentConfig_WhenWriterIsCalled_ThenShouldCreateTheExpectedLayout()
     {
+        // arrange
         TextFileModelBuilder.ApplyConfigurationsFromAssembly(typeof(FluentFlatWriterTests).Assembly);
         var models = new List<FluentWriterRecord>() {
             new() {
@@ -31,30 +33,13 @@ public class FluentFlatWriterTests
 
                               """;
 
-        await FlatTextFileWriter.WriteFileAsync(models, "file2.csv", new WritingOptions { Header = "Name,Dob,ChildrenCount", Mode = ContentMode.Delimited }, CancellationToken.None);
+        var writer = new FlatTextFileWriter<FluentWriterRecord>(new WritingOptions { Header = "Name,Dob,ChildrenCount", Mode = ContentMode.Delimited });
 
+        // act
+        await writer.WriteFileAsync(models, "file2.csv", CancellationToken.None);
+
+        // assert
         var content = File.ReadAllText("file2.csv");
         content.Should().Be(expectedContent);
-    }
-
-
-    public class FluentWriterRecordConfig : TextFileRecordTypeConfiguration<FluentWriterRecord>
-    {
-        public FluentWriterRecordConfig()
-        {
-            HasDelimiter(',');
-            Property(x => x.Name).InDelimitedOrder(1).InPositionalIndex(0, 20).PadRightWith(' ');
-            Property(x => x.Dob).InDelimitedOrder(2).InPositionalIndex(20, 10).PadRightWith(' ').WithWriteCustomParse<DateTime>(x => x.ToShortDateString());
-            Property(x => x.ChildrenCount).InDelimitedOrder(3).InPositionalIndex(30, 2).PadLeftWith('0');
-        }
-    }
-
-    public class FluentWriterRecord
-    {
-        public string Name { get; set; }
-
-        public DateTime Dob { get; set; }
-
-        public int? ChildrenCount { get; set; }
     }
 } 

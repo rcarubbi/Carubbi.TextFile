@@ -4,9 +4,9 @@ using System.Text;
 
 namespace Carubbi.TextFile.Writers;
 
-public class FlatTextFileWriter
+public class FlatTextFileWriter<T>(WritingOptions writingOptions)
 {
-    public static async Task WriteFileAsync<T>(List<T> models, string filePath, WritingOptions writingOptions, CancellationToken cancellationToken)
+    public async Task WriteFileAsync(List<T> models, string filePath, CancellationToken cancellationToken)
     {
         await using var writer = new StreamWriter(filePath, false, Encoding.Default, bufferSize: CalculateBufferSize());
        
@@ -17,17 +17,17 @@ public class FlatTextFileWriter
 
         if (writingOptions.Mode == ContentMode.Delimited)
         {
-            await WriteDelimitedLines(models, writingOptions, writer, cancellationToken);
+            await WriteDelimitedLines(models, writer, cancellationToken);
         }
         else
         {
-            await WritePositionalLines(models, writingOptions, writer, cancellationToken);
+            await WritePositionalLines(models, writer, cancellationToken);
         }
 
 
     }
 
-    private static async Task WritePositionalLines<T>(List<T> models, WritingOptions writingOptions, StreamWriter writer, CancellationToken cancellationToken)
+    private async Task WritePositionalLines(List<T> models, StreamWriter writer, CancellationToken cancellationToken)
     {
         if (writingOptions.IgnoreLastLineBreak)
         {
@@ -52,7 +52,7 @@ public class FlatTextFileWriter
         }
     }
 
-    private static async Task WriteDelimitedLines<T>(List<T> models, WritingOptions writingOptions, StreamWriter writer, CancellationToken cancellationToken)
+    private async Task WriteDelimitedLines(List<T> models, StreamWriter writer, CancellationToken cancellationToken)
     {
         var delimiter = typeof(T).GetDelimiter() ?? throw new InvalidOperationException("Delimiter configuration is required for delimited mode.");
 
@@ -78,11 +78,9 @@ public class FlatTextFileWriter
                 await writer.WriteLineAsync(ParseDelimitedLine(model, delimiter), cancellationToken);
             }
         }
-
-        
     }
 
-    private static int CalculateBufferSize()
+    private int CalculateBufferSize()
     {
         const int maxMemory = 32 * 1024 * 1024;
         MemoryInfo.GetMemoryStatus(out _, out var availableMemoryMB);
@@ -93,7 +91,7 @@ public class FlatTextFileWriter
         return memory;
     }
 
-    private static StringBuilder ParsePositionalLine<T>(T model)
+    private StringBuilder ParsePositionalLine(T model)
     {
         var properties = typeof(T).GetPositionalProperties();
         var lineContent = new StringBuilder();   
@@ -120,7 +118,7 @@ public class FlatTextFileWriter
         return lineContent;
     }
 
-    private static StringBuilder ParseDelimitedLine<T>(T model, char delimiter) 
+    private StringBuilder ParseDelimitedLine(T model, char delimiter) 
     {
         var properties = typeof(T).GetDelimitedProperties();
         var lineContent = new StringBuilder();

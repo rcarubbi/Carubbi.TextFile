@@ -1,5 +1,5 @@
-﻿using Carubbi.TextFile.Attributes;
-using Carubbi.TextFile.Configuration;
+﻿using Carubbi.TextFile.Configuration;
+using Carubbi.TextFile.Tests.Writers.Models;
 using Carubbi.TextFile.Writers;
 using FluentAssertions;
 
@@ -10,6 +10,7 @@ public class FlatTextWriterTests
     [Fact]
     public async Task GivenModelsWithDelimitedAttributes_WhenWriterIsCalled_ThenShouldCreateTheExpectedLayout()
     {
+        // arrange
         var models = new List<WriterRecord>() {
             new() {
                 Name = "Joao da Silva",
@@ -30,8 +31,12 @@ public class FlatTextWriterTests
 
                               """;
 
-        await FlatTextFileWriter.WriteFileAsync(models, "file1.csv", new WritingOptions { Header = "Name,Dob,ChildrenCount", Mode = ContentMode.Delimited }, CancellationToken.None);
+        var writer = new FlatTextFileWriter<WriterRecord>(new WritingOptions { Header = "Name,Dob,ChildrenCount", Mode = ContentMode.Delimited });
 
+        // act
+        await writer.WriteFileAsync(models, "file1.csv", CancellationToken.None);
+
+        // assert
         var content = File.ReadAllText("file1.csv");
         content.Should().Be(expectedContent);
     }
@@ -39,6 +44,7 @@ public class FlatTextWriterTests
     [Fact]
     public async Task GivenModelsWithDelimitedAttributes_WhenWriterCalledWithIgnoreLastLineBreak_ThenShouldCreateTheExpectedLayout()
     {
+        // arrange
         var models = new List<WriterRecord>() {
             new() {
                 Name = "Joao da Silva",
@@ -58,8 +64,12 @@ public class FlatTextWriterTests
                               Jose dos Santos,11/04/2005,5
                               """;
 
-        await FlatTextFileWriter.WriteFileAsync(models, "file1.csv", new WritingOptions { Header = "Name,Dob,ChildrenCount", Mode = ContentMode.Delimited, IgnoreLastLineBreak = true }, CancellationToken.None);
+        var writer = new FlatTextFileWriter<WriterRecord>(new WritingOptions { Header = "Name,Dob,ChildrenCount", Mode = ContentMode.Delimited, IgnoreLastLineBreak = true });
 
+        // act
+        await writer.WriteFileAsync(models, "file1.csv", CancellationToken.None);
+
+        // assert
         var content = File.ReadAllText("file1.csv");
         content.Should().Be(expectedContent);
     }
@@ -67,6 +77,7 @@ public class FlatTextWriterTests
     [Fact]
     public async Task GivenModelsWithPositionalAttributes_WhenWriterCalled_ThenShouldCreateTheExpectedLayout()
     {
+        // arrange
         var models = new List<WriterRecord>() {
             new() {
                 Name = "Joao da Silva",
@@ -87,31 +98,14 @@ public class FlatTextWriterTests
 
                               """;
 
-        await FlatTextFileWriter.WriteFileAsync(models, "file1.csv", new WritingOptions { Header = "Name,Dob,ChildrenCount", Mode = ContentMode.Positional  }, CancellationToken.None);
+        var writer = new FlatTextFileWriter<WriterRecord>(new WritingOptions { Header = "Name,Dob,ChildrenCount", Mode = ContentMode.Positional });
 
+        // act
+        await writer.WriteFileAsync(models, "file1.csv", CancellationToken.None);
+
+        // assert
         var content = File.ReadAllText("file1.csv");
         content.Should().Be(expectedContent);
     }
 }
 
-[Delimiter(',')]
-public class WriterRecord 
-{
-    [DelimiterField(1)]
-    [PositionalField(0, 20, ' ', PaddingDirection.Right)]
-    public string Name { get; set; }
-
-    [DelimiterField(2)]
-    [WriteCustomParse(nameof(FormatDate))]
-    [PositionalField(20, 10, ' ', PaddingDirection.Right)]
-    public DateTime Dob { get; set; }
-
-    [DelimiterField(3)]
-    [PositionalField(30, 2, '0', PaddingDirection.Left)]
-    public int? ChildrenCount { get; set; }
-
-    private string FormatDate(DateTime date)
-    {
-        return date.ToShortDateString();
-    }
-}

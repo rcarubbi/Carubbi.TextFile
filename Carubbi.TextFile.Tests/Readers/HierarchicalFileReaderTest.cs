@@ -26,8 +26,12 @@ public class HierarchicalFileReaderTest
 
         File.WriteAllText("test6.txt", fileContent);
 
-        var result = HierarchicalTextFileReader.ReadHierarchicalFile<Person, Child, Phone>("test6.txt", new ReadingOptions { Mode = ContentMode.Delimited });
+        var reader = new HierarchicalTextFileReader(new ReadingOptions { Mode = ContentMode.Delimited });
 
+        // act
+        var result = reader.ReadHierarchicalFile<Person, Child, Phone>("test6.txt");
+
+        // assert
         result.Should().HaveCount(2);
         result[0].Name.Should().Be("Raphael Carubbi Neto");
         result[0].Dob.Should().Be(new DateTime(1981, 9, 29));

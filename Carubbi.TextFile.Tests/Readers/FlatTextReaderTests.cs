@@ -20,9 +20,12 @@ public class FlatTextReaderTests
 
         File.WriteAllText("test1.txt", fileContent);
 
-        // sut
-        var result = await FlatTextFileReader.ReadFile<RecordExample>("test1.txt", new ReadingOptions { SkipHeader = true, Mode = ContentMode.Delimited });
+        var reader = new FlatTextFileReader<RecordExample>(new ReadingOptions { SkipHeader = true, Mode = ContentMode.Delimited });
 
+        // act
+        var result = await reader.ReadFile("test1.txt");
+
+        // assert
         result.Should().HaveCount(3);
         result[0].Name.Should().Be("Raphael Carubbi Neto");
         result[0].DateOfBirth.Should().Be(new DateTime(1981, 9, 29));
@@ -50,9 +53,12 @@ public class FlatTextReaderTests
 
         File.WriteAllText("test2.txt", fileContent);
 
-        // sut
-        var result = await FlatTextFileReader.ReadFile<RecordExample>("test2.txt", new ReadingOptions { SkipHeader = true, Mode = ContentMode.Positional });
+        var reader = new FlatTextFileReader<RecordExample>(new ReadingOptions { SkipHeader = true, Mode = ContentMode.Positional });
 
+        // act
+        var result = await reader.ReadFile("test2.txt");
+
+        // assert
         result.Should().HaveCount(3);
         result[0].Name.Should().Be("Raphael Carubbi Neto");
         result[0].DateOfBirth.Should().Be(new DateTime(1981, 9, 29));
@@ -262,9 +268,12 @@ public class FlatTextReaderTests
 
         File.WriteAllText("test7.txt", fileContent);
 
-        // sut
-        var result = await FlatTextFileReader.ReadFileInParallel<RecordExample>("test7.txt", new ReadingOptions { SkipHeader = true, Mode = ContentMode.Positional });
+        var reader = new FlatTextFileReader<RecordExample>(new ReadingOptions { SkipHeader = true, Mode = ContentMode.Positional });
 
+        // act
+        var result = await reader.ReadFileInParallel("test7.txt");
+
+        // assert
         result.Should().HaveCount(183);
 
         var orderedList = result.OrderBy(x => x.Number).ToList();
@@ -455,9 +464,12 @@ public class FlatTextReaderTests
 
         File.WriteAllText("test8.txt", fileContent);
 
-        // sut
-        var result = await FlatTextFileReader.ReadFileInParallel<RecordExample>("test8.txt", new ReadingOptions { SkipHeader = true, Mode = ContentMode.Positional });
+        var reader = new FlatTextFileReader<RecordExample>(new ReadingOptions { SkipHeader = true, Mode = ContentMode.Positional });
 
+        // act
+        var result = await reader.ReadFileInParallel("test8.txt");
+
+        // assert
         result.Should().HaveCount(163);
 
         var orderedList = result.OrderBy(x => x.Number).ToList();

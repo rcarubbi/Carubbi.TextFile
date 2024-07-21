@@ -6,7 +6,7 @@ namespace Carubbi.TextFile.Readers;
 
 public abstract class TextFileReaderBase
 {
-    protected static object? ConvertAndValidate(string valueString, PropertyInfo propertyInfo)
+    protected object? ConvertAndValidate(string valueString, PropertyInfo propertyInfo)
     {
         if (string.IsNullOrEmpty(valueString) && propertyInfo.IsNullable())
             return null;
@@ -55,7 +55,7 @@ public abstract class TextFileReaderBase
         }
     }
 
-    protected static void ProcessLine(string line, object instance, ContentMode mode)
+    protected void ProcessLine(string line, object instance, ContentMode mode)
     {
         if (mode == ContentMode.Delimited)
         {
@@ -67,7 +67,7 @@ public abstract class TextFileReaderBase
         }
     }
 
-    private static void ProcessDelimitedLine<T>(string line, T instance) where T : class
+    private void ProcessDelimitedLine<T>(string line, T instance) where T : class
     {
         var delimiter = instance.GetType().GetDelimiter() ?? throw new InvalidOperationException("Delimiter configuration is required for delimited mode."); 
        
@@ -100,13 +100,13 @@ public abstract class TextFileReaderBase
         }
     }
 
-    private static void SetPropertyValue(object instance, string valueString, PropertyInfo prop)
+    private void SetPropertyValue(object instance, string valueString, PropertyInfo prop)
     {
         var value = ConvertAndValidate(valueString, prop);
         prop.SetValue(instance, value);
     }
 
-    private static void ProcessPositionalLine(string line, object instance)
+    private void ProcessPositionalLine(string line, object instance)
     {
         foreach (var prop in instance.GetType().GetProperties())
         {

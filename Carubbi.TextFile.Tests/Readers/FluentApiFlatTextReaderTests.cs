@@ -27,9 +27,12 @@ public class FluentApiFlatTextReaderTests
 
         File.WriteAllText("test3.txt", fileContent);
 
-        // sut
-        var result = await FlatTextFileReader.ReadFile<FluentRecordExample>("test3.txt", new ReadingOptions { SkipHeader = true, Mode = ContentMode.Delimited });
+        var reader = new FlatTextFileReader<FluentRecordExample>(new ReadingOptions { SkipHeader = true, Mode = ContentMode.Delimited });
 
+        // act
+        var result = await reader.ReadFile("test3.txt");
+
+        // assert
         result.Should().HaveCount(3);
         result[0].Name.Should().Be("Raphael Carubbi Neto");
         result[0].DateOfBirth.Should().Be(new DateTime(1981, 9, 29));
@@ -57,9 +60,12 @@ public class FluentApiFlatTextReaderTests
 
         File.WriteAllText("test4.txt", fileContent);
 
-        // sut
-        var result = await FlatTextFileReader.ReadFile<FluentRecordExample>("test4.txt", new ReadingOptions { SkipHeader = true, Mode = ContentMode.Positional });
+        var reader = new FlatTextFileReader<FluentRecordExample>(new ReadingOptions { SkipHeader = true, Mode = ContentMode.Positional });
 
+        // act
+        var result = await reader.ReadFile("test4.txt");
+
+        // assert
         result.Should().HaveCount(3);
         result[0].Name.Should().Be("Raphael Carubbi Neto");
         result[0].DateOfBirth.Should().Be(new DateTime(1981, 9, 29));

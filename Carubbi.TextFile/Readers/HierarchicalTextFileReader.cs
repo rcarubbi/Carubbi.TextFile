@@ -3,39 +3,39 @@ using Carubbi.TextFile.Extensions;
 using System.Collections;
 
 namespace Carubbi.TextFile.Readers;
-public class HierarchicalTextFileReader : TextFileReaderBase
+public class HierarchicalTextFileReader(ReadingOptions readingOptions) : TextFileReaderBase
 {
-    public static List<T1> ReadHierarchicalFile<T1, T2>(string filePath, ReadingOptions readingOptions)
+    public List<T1> ReadHierarchicalFile<T1, T2>(string filePath)
         where T1 : new()
         where T2 : new()
     {
-        return ReadHierarchicalFile<T1>(filePath, readingOptions, typeof(T2));
+        return ReadHierarchicalFile<T1>(filePath, typeof(T2));
     }
 
-    public static List<T1> ReadHierarchicalFile<T1, T2, T3>(string filePath, ReadingOptions readingOptions)
+    public List<T1> ReadHierarchicalFile<T1, T2, T3>(string filePath)
         where T1 : new()
         where T2 : new()
         where T3 : new()
     {
-        return ReadHierarchicalFile<T1>(filePath, readingOptions, typeof(T2), typeof(T3));
+        return ReadHierarchicalFile<T1>(filePath, typeof(T2), typeof(T3));
     }
 
-    public static List<T1> ReadHierarchicalFile<T1, T2, T3, T4>(string filePath, ReadingOptions readingOptions)
+    public List<T1> ReadHierarchicalFile<T1, T2, T3, T4>(string filePath)
         where T1 : new()
         where T2 : new()
         where T3 : new()
         where T4 : new()
     {
-        return ReadHierarchicalFile<T1>(filePath, readingOptions, typeof(T2), typeof(T3), typeof(T4));
+        return ReadHierarchicalFile<T1>(filePath, typeof(T2), typeof(T3), typeof(T4));
     }
 
-    static List<TParent> ReadHierarchicalFile<TParent>(string filePath, ReadingOptions readingOptions, params Type[] childTypes) where TParent : new()
+    List<TParent> ReadHierarchicalFile<TParent>(string filePath, params Type[] childTypes) where TParent : new()
     {
         var lines = File.ReadAllLines(filePath);
         return ReadLines<TParent>(lines, readingOptions.Mode, childTypes);
     }
 
-    private static List<TParent> ReadLines<TParent>(string[] lines, ContentMode mode, params Type[] childTypes) where TParent : new()
+    private List<TParent> ReadLines<TParent>(string[] lines, ContentMode mode, params Type[] childTypes) where TParent : new()
     {
         var result = new List<TParent>();
         var allTypes = new[] { typeof(TParent) }.Concat(childTypes).ToArray();
@@ -70,7 +70,7 @@ public class HierarchicalTextFileReader : TextFileReaderBase
             }
             else
             {
-                LinkChildren(currentParent, instance);
+                LinkChildren(currentParent!, instance);
             }
 
             instances[recordType].Add(instance);
@@ -86,7 +86,7 @@ public class HierarchicalTextFileReader : TextFileReaderBase
     }
 
 
-    private static Type GetRecordType(string line, ContentMode mode, Type[] allTypes)
+    private Type GetRecordType(string line, ContentMode mode, Type[] allTypes)
     {
         foreach (var type in allTypes)
         {
@@ -117,7 +117,7 @@ public class HierarchicalTextFileReader : TextFileReaderBase
         throw new InvalidOperationException("Record type on line doesn't match with any Record layout in the hierarchy");
     }
 
-    private static void UpdateForeignKey(object parent, object child)
+    private void UpdateForeignKey(object parent, object child)
     {
         var parentReferenceField = child.GetType().GetParentReferenceProperty(parent.GetType());
         var recordIdentifierField = parent.GetType().GetIdentifierProperty();
@@ -128,7 +128,7 @@ public class HierarchicalTextFileReader : TextFileReaderBase
         }
     }
 
-    private static void LinkChildren(object parent, object child)
+    private void LinkChildren(object parent, object child)
     {
         var childReferenceField = parent.GetType().GetChildReferenceCollection(child.GetType());
 
