@@ -66,7 +66,9 @@ var fileContent = """
 
 File.WriteAllText("test1.txt", fileContent);
 
-var result = FlatTextFileReader.ReadFile<RecordExample>("test1.txt", new ReadingOptions { SkipHeader = true, Mode = ContentMode.Delimited });
+var reader = new FlatTextFileReader<RecordExample>(new ReadingOptions { SkipHeader = true, Mode = ContentMode.Delimited });
+
+var result = reader.ReadFile("test1.txt");
 ```
 
 ## Configuration Options
