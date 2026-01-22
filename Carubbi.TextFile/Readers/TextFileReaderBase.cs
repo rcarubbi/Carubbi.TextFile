@@ -23,6 +23,17 @@ public abstract class TextFileReaderBase
                 throw new InvalidOperationException("Invalid integer value.");
             }
         }
+        else if (dataType == typeof(decimal))
+        {
+            if (decimal.TryParse(valueString, out decimal decimalValue))
+            {
+                return decimalValue;
+            }
+            else
+            {
+                throw new InvalidOperationException("Invalid decimal value.");
+            }
+        }
         else if (dataType == typeof(float))
         {
             if (float.TryParse(valueString, out float floatValue))
