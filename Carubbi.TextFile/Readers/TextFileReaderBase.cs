@@ -6,64 +6,26 @@ namespace Carubbi.TextFile.Readers;
 
 public abstract class TextFileReaderBase
 {
+    private static readonly IReadOnlyDictionary<Type, Func<string, object>> _converters = new Dictionary<Type, Func<string, object>>
+    {
+        [typeof(int)] = s => int.TryParse(s, out var v) ? v : throw new InvalidOperationException("Invalid integer value."),
+        [typeof(decimal)] = s => decimal.TryParse(s, out var v) ? v : throw new InvalidOperationException("Invalid decimal value."),
+        [typeof(float)] = s => float.TryParse(s, out var v) ? v : throw new InvalidOperationException("Invalid float value."),
+        [typeof(DateTime)] = s => DateTime.TryParse(s, out var v) ? v : throw new InvalidOperationException("Invalid DateTime value."),
+        [typeof(string)] = s => s
+    };
+
     protected object? ConvertAndValidate(string valueString, PropertyInfo propertyInfo)
     {
         if (string.IsNullOrEmpty(valueString) && propertyInfo.IsNullable())
             return null;
 
-        var dataType = propertyInfo.GetPropertyType();
-        if (dataType == typeof(int))
-        {
-            if (int.TryParse(valueString, out int intValue))
-            {
-                return intValue;
-            }
-            else
-            {
-                throw new InvalidOperationException("Invalid integer value.");
-            }
-        }
-        else if (dataType == typeof(decimal))
-        {
-            if (decimal.TryParse(valueString, out decimal decimalValue))
-            {
-                return decimalValue;
-            }
-            else
-            {
-                throw new InvalidOperationException("Invalid decimal value.");
-            }
-        }
-        else if (dataType == typeof(float))
-        {
-            if (float.TryParse(valueString, out float floatValue))
-            {
-                return floatValue;
-            }
-            else
-            {
-                throw new InvalidOperationException("Invalid float value.");
-            }
-        }
-        else if (dataType == typeof(DateTime))
-        {
-            if (DateTime.TryParse(valueString, out DateTime dateTimeValue))
-            {
-                return dateTimeValue;
-            }
-            else
-            {
-                throw new InvalidOperationException("Invalid DateTime value.");
-            }
-        }
-        else if (dataType == typeof(string))
-        {
-            return valueString;
-        }
-        else
-        {
-            throw new InvalidOperationException($"Unsupported data type: {dataType.Name}");
-        }
+        var type = propertyInfo.GetPropertyType();
+
+        if (!_converters.TryGetValue(type, out var converter))
+            throw new InvalidOperationException($"Unsupported data type: {type.Name}");
+
+        return converter(valueString);
     }
 
     protected void ProcessLine(string line, object instance, ContentMode mode)
