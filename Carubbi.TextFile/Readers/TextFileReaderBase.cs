@@ -42,36 +42,39 @@ public abstract class TextFileReaderBase
 
     private void ProcessDelimitedLine<T>(string line, T instance) where T : class
     {
-        var delimiter = instance.GetType().GetDelimiter() ?? throw new InvalidOperationException("Delimiter configuration is required for delimited mode."); 
-       
-        var values = line.Split(delimiter);
+        var delimiter  = instance.GetType().GetDelimiter()
+            ?? throw new InvalidOperationException("Delimiter configuration is required for delimited mode.");
 
-        foreach (var prop in instance.GetType().GetProperties())
+        var span = line.AsSpan();
+
+        var props = instance.GetType().GetProperties();
+        Array.Sort(props, (a, b) => (a.GetFieldOrder() ?? int.MaxValue).CompareTo(b.GetFieldOrder() ?? int.MaxValue));
+
+        int lastIndex = -1;
+
+        foreach (var prop in props)
         {
             var fieldOrder = prop.GetFieldOrder();
+            if (!fieldOrder.HasValue) continue;
 
-            if (fieldOrder.HasValue)
+            int fieldIndex = fieldOrder.Value - 1;
+
+            if (fieldIndex < 0)
+                throw new InvalidOperationException($"Invalid FieldOrder for {prop.Name}: {fieldOrder.Value}");
+
+           
+            var valueString = CsvFieldReader.GetFieldAt(span, delimiter, fieldIndex);
+
+            if (valueString.Length == 0 && !prop.IsNullable() && fieldIndex > lastIndex)
             {
-                var fieldIndex = fieldOrder.Value - 1;
-                if (fieldIndex < values.Length)
-                {
-                    try
-                    {
-                        string valueString = values[fieldIndex];
-                        SetPropertyValue(instance, valueString, prop);
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new InvalidOperationException($"Error converting field {prop.Name}: {ex.Message}");
-                    }
-                }
-                else if (!prop.IsNullable())
-                {
-                    throw new InvalidOperationException($"Field {prop.Name} is not optional but missing in line.");
-                }
+                throw new InvalidOperationException($"Field {prop.Name} is not optional but missing in line.");
             }
+
+            SetPropertyValue(instance, valueString, prop);
+            lastIndex = fieldIndex;
         }
     }
+
 
     private void SetPropertyValue(object instance, string valueString, PropertyInfo prop)
     {
