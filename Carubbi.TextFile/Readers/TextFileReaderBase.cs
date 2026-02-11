@@ -18,7 +18,9 @@ public abstract class TextFileReaderBase
     protected object? ConvertAndValidate(string valueString, PropertyInfo propertyInfo)
     {
         if (string.IsNullOrEmpty(valueString) && propertyInfo.IsNullable())
+        {
             return null;
+        }
 
         var type = propertyInfo.GetPropertyType();
 

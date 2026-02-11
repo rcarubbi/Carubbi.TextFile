@@ -10,7 +10,7 @@ internal static class PropertyInfoExtensions
     internal static bool IsNullable(this PropertyInfo propertyInfo)
     {
         var propertyType = propertyInfo.PropertyType;
-        return propertyType.IsGenericType && propertyType.GetGenericTypeDefinition() == typeof(Nullable<>);
+        return propertyType.IsGenericType && propertyType.GetGenericTypeDefinition() == typeof(Nullable<>) || propertyType == typeof(string);
     }
 
     internal static bool IsList(this PropertyInfo propertyInfo)
@@ -110,7 +110,7 @@ internal static class PropertyInfoExtensions
 
     internal static Type GetPropertyType(this PropertyInfo propertyInfo)
     {
-        return propertyInfo.IsNullable()
+        return propertyInfo.PropertyType.IsGenericType
             ? propertyInfo.PropertyType.GenericTypeArguments[0]
             : propertyInfo.PropertyType;
     }

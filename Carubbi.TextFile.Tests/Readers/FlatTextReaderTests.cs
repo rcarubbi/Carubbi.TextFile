@@ -14,7 +14,7 @@ public class FlatTextReaderTests
         var fileContent = """
                           #,Name,DOB,Children
                           001,Raphael Carubbi Neto,29/09/1981,2
-                          002,John Doe,,1
+                          002,,,1
                           003,Bob B.,30/05/2002
                           """;
 
@@ -31,7 +31,7 @@ public class FlatTextReaderTests
         result[0].DateOfBirth.Should().Be(new DateTime(1981, 9, 29));
         result[0].Children.Should().Be(2);
 
-        result[1].Name.Should().Be("John Doe");
+        result[1].Name.Should().BeNull();
         result[1].DateOfBirth.Should().BeNull();
         result[1].Children.Should().Be(1);
 
