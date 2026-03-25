@@ -25,9 +25,16 @@ public abstract class TextFileReaderBase
         var type = propertyInfo.GetPropertyType();
 
         if (!_converters.TryGetValue(type, out var converter))
-            throw new InvalidOperationException($"Unsupported data type: {type.Name} {propertyInfo.Name}");
+            throw new InvalidOperationException($"Unsupported data type: {type.Name}");
 
-        return converter(valueString);
+        try
+        {
+            return converter(valueString);
+        }
+        catch(Exception ex)
+        {
+            throw new InvalidOperationException($"Error converting value '{valueString}' for property '{propertyInfo.Name}' of type '{type.Name}'.", ex);
+        }
     }
 
     protected void ProcessLine(string line, object instance, ContentMode mode)
